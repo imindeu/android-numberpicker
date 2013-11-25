@@ -29,6 +29,8 @@
         <attr name="internalLayout" format="reference" />
         <!-- @hide The drawable for pressed virtual (increment/decrement) buttons. -->
         <attr name="virtualButtonPressedDrawable" format="reference"/>
+        <!-- @hide The text color of the numbers. -->
+        <attr name="pickerTextColor" format="color|reference" />
     </declare-styleable>
 
     <style name="NPWidget">
@@ -49,6 +51,7 @@
         <item name="internalMinWidth">64dip</item>
         <item name="internalMaxHeight">180dip</item>
         <item name="virtualButtonPressedDrawable">@drawable/item_background_holo_dark</item>
+        <item name="pickerTextColor">?android:attr/textColorPrimary</item>
     </style>
 
     <style name="NPWidget.Holo.Light.NumberPicker" parent="NPWidget.Holo.NumberPicker">

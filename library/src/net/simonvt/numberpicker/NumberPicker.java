@@ -19,11 +19,8 @@ package net.simonvt.numberpicker;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.graphics.Paint.Align;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -481,6 +478,11 @@ public class NumberPicker extends LinearLayout {
     private int mLastHandledDownDpadKeyCode = -1;
 
     /**
+     * The color filter used on drawables.
+     */
+    private ColorFilter mColorFilter;
+
+    /**
      * Interface to listen for changes of the current value.
      */
     public interface OnValueChangeListener {
@@ -575,6 +577,7 @@ public class NumberPicker extends LinearLayout {
                 attrs, R.styleable.NumberPicker, defStyle, 0);
         final int layoutResId = attributesArray.getResourceId(
                 R.styleable.NumberPicker_internalLayout, DEFAULT_LAYOUT_RESOURCE_ID);
+        int pickerTextColor = attributesArray.getColor(R.styleable.NumberPicker_pickerTextColor, 0);
 
         mHasSelectorWheel = (layoutResId != DEFAULT_LAYOUT_RESOURCE_ID);
 
@@ -679,6 +682,7 @@ public class NumberPicker extends LinearLayout {
 
         // input text
         mInputText = (EditText) findViewById(R.id.np__numberpicker_input);
+        mInputText.setTextColor(pickerTextColor);
         mInputText.setOnFocusChangeListener(new OnFocusChangeListener() {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
@@ -1287,6 +1291,16 @@ public class NumberPicker extends LinearLayout {
         if ((!wrapSelectorWheel || wrappingAllowed) && wrapSelectorWheel != mWrapSelectorWheel) {
             mWrapSelectorWheel = wrapSelectorWheel;
         }
+    }
+
+    public ColorFilter getColorFilter() {
+        return mColorFilter;
+    }
+
+    public void setColorFilter(ColorFilter colorFilter) {
+        mColorFilter = colorFilter;
+        mSelectionDivider.setColorFilter(mColorFilter);
+        mVirtualButtonPressedDrawable.setColorFilter(mColorFilter);
     }
 
     /**
