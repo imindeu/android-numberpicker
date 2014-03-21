@@ -16,6 +16,7 @@
 
 package net.simonvt.numberpicker;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -995,13 +996,16 @@ public class NumberPicker extends LinearLayout {
         return super.dispatchTrackballEvent(event);
     }
 
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected boolean dispatchHoverEvent(MotionEvent event) {
         if (!mHasSelectorWheel) {
-            return super.dispatchHoverEvent(event);
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && super.dispatchHoverEvent(event);
         }
 
-        if (((AccessibilityManager) getContext().getSystemService(Context.ACCESSIBILITY_SERVICE)).isEnabled()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
+                ((AccessibilityManager) getContext().getSystemService(Context.ACCESSIBILITY_SERVICE)).isEnabled()) {
             final int eventY = (int) event.getY();
             final int hoveredVirtualViewId;
             if (eventY < mTopSelectionDividerTop) {
@@ -1513,22 +1517,30 @@ public class NumberPicker extends LinearLayout {
 
     @Override
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
-        super.onInitializeAccessibilityEvent(event);
-        event.setClassName(NumberPicker.class.getName());
-        event.setScrollable(true);
-        event.setScrollY((mMinValue + mValue) * mSelectorElementHeight);
-        event.setMaxScrollY((mMaxValue - mMinValue) * mSelectorElementHeight);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            super.onInitializeAccessibilityEvent(event);
+            event.setClassName(NumberPicker.class.getName());
+            event.setScrollable(true);
+            event.setScrollY((mMinValue + mValue) * mSelectorElementHeight);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                event.setMaxScrollY((mMaxValue - mMinValue) * mSelectorElementHeight);
+            }
+        }
     }
 
     @Override
     public AccessibilityNodeProvider getAccessibilityNodeProvider() {
-        if (!mHasSelectorWheel) {
-            return super.getAccessibilityNodeProvider();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            if (!mHasSelectorWheel) {
+                return super.getAccessibilityNodeProvider();
+            }
+            if (mAccessibilityNodeProvider == null) {
+                mAccessibilityNodeProvider = new SupportAccessibilityNodeProvider();
+            }
+            return mAccessibilityNodeProvider.mProvider;
         }
-        if (mAccessibilityNodeProvider == null) {
-            mAccessibilityNodeProvider = new SupportAccessibilityNodeProvider();
-        }
-        return mAccessibilityNodeProvider.mProvider;
+        return null;
     }
 
     /**
@@ -2244,6 +2256,7 @@ public class NumberPicker extends LinearLayout {
     /**
      * Class for managing virtual view tree rooted at this picker.
      */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     class AccessibilityNodeProviderImpl extends AccessibilityNodeProvider {
         private static final int UNDEFINED = Integer.MIN_VALUE;
 
